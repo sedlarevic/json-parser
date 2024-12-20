@@ -1,7 +1,6 @@
-(ns json-parser.core 
+(ns json-parser.core
   (:require
-   [clojure.string :refer [blank? join]
-    ]))
+   [clojure.string :refer [blank? join]]))
 
 (defrecord JsonString [value])
 (defrecord JsonNumber [value]) ; NOTE/TODO: no support for float values 
@@ -20,13 +19,15 @@
     nil
     (do
       (println "Not an empty string!")
-      (let [first-char (subs (str string-val) 0 1)]
+      (let [first-char (first string-val)]
         (if (= expected-char first-char)
           (do
             (let [rest-of-string (subs (str string-val) 1)]
               [first-char rest-of-string]))
           (do
             nil))))))
+;NOTE: DOES NOT WORK FOR: "falseasdasd" "false", but works for "trueasdasd" "true"
+;TODO: Find a fix for a bug
 ;recursively goes through expected-string-value
 ;when expected-string-value is blank, we return expected value, and the rest of the string-val 
 (defn parse-string [string-val expected-string-val]
@@ -35,10 +36,7 @@
          output []]
     (if (blank? expected-string)
       [(join "" output) remaining-string]
-      (let [[parsed-char rest-of-string] (parse-char remaining-string (subs expected-string 0 1))]
-        (if(nil? parsed-char)
-        nil
-        (recur rest-of-string (subs expected-string 1) (conj output parsed-char))
-        )
-     )
-    )))
+      (let [[parsed-char rest-of-string] (parse-char remaining-string (first expected-string))]
+        (if (nil? parsed-char)
+          nil
+          (recur rest-of-string (subs expected-string 1) (conj output parsed-char)))))))

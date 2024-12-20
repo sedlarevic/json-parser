@@ -15,15 +15,15 @@
   (->Parser parser-fn))
 ;takes first letter of the string-value, and checks if the letter is the expected char
 ;if correct, returns the char and the rest of string, if not returns nil
-(defn parse-char [stringVal expectedChar]
-  (if (blank? stringVal)
+(defn parse-char [string-val expected-char]
+  (if (blank? string-val)
     nil
     (do
       (println "Not an empty string!")
-      (let [first-char (subs (str stringVal) 0 1)]
-        (if (= expectedChar first-char)
+      (let [first-char (subs (str string-val) 0 1)]
+        (if (= expected-char first-char)
           (do
-            (let [rest-of-string (subs (str stringVal) 1)]
+            (let [rest-of-string (subs (str string-val) 1)]
               [first-char rest-of-string]))
           (do
             nil))))))

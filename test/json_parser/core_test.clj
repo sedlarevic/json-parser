@@ -35,3 +35,19 @@
 
   (fact "it returns nil for non-null strings"
     (parse-jsonNull "true") => nil))
+
+(facts "about parse-jsonString"
+  (fact "it parses the empty string"
+    (parse-jsonString "\"\"") => ["" ""])
+
+  (fact "it parses a singleton string"
+    (parse-jsonString "\"a\"") => ["a" ""])
+
+  (fact "it parses longer strings"
+    (parse-jsonString "\"hi how are you?\"") => ["hi how are you?" ""])
+
+  (fact "it parses escaped quotes"
+    (parse-jsonString "\"Speak \\\"friend\\\" and enter\"")
+    => ["Speak \"friend\" and enter" ""]))
+
+

@@ -6,7 +6,7 @@
 ;NOTE/TODO: no string escaping support
 ;records
 (defrecord JsonString [value])
-(defrecord JsonNumber [value]) ; NOTE/TODO: no support for float values 
+(defrecord JsonNumber [value]) 
 (defrecord JsonBool [value])
 (defrecord JsonNull [value])
 (defrecord JsonArray [value]) ; should be an array 
@@ -84,13 +84,15 @@
             [(create-json-string output-string) remaining]))))))
 
 (defn span-string [string-val]
-  (let [[_ number rest-of-string] (re-matches #"^([0-9]+)(.*)$" string-val)]
+  (let [[_ number rest-of-string] (re-matches #"^(-?(?:0|[1-9]\d*)(?:\.\d+)?)(.*)$" string-val)]
+    (println _ number rest-of-string string-val)
     (if (nil? number)
       nil
       [number rest-of-string])))
 
 (defn parse-jsonNumber [string-val]
   (let [[output remaining-string] (span-string (trim string-val))]
+    (println output remaining-string)
     (if (nil? output)
       nil
       [(create-json-number (read-string output)) remaining-string])))

@@ -40,25 +40,6 @@
     (if (nil? output)
       nil
       [(create-json-number (read-string output)) remaining-string])))
-(defn separate-pair-stari [string-val]
-  (if (or ((nil? string-val) (blank? string-val)))
-    nil
-    (let [[output-string rest-of-string] (parse-string-until (trim string-val) "\"")]
-     ; ovde smo dobili ime key-a + : plus ostatak stringa
-     ;problem je sto imamo { pa " i na kraju" pa nakon toga :  vidi kako ces da parsiras to} 
-     ;vrv trim upit za { trim upit za " kada smo uradili to radimo parse string until " pa radimo trim
-     ;nakon trima ispitujemo da li je sledeci karakter : ako jeste vracamo rest i onda trim od toga sto vracamo
-      (if (nil? output-string)
-        nil)
-     ;stigao sam do : kod json objecta znaci imas { "abc" : [1,2,3,4] , "def" : {"ghi" : null , "jkl" : true}}
-      (if (= (first (trim rest-of-string)) ":")
-        (let [[parsed-json-value rest-of-string-after-json-value] (json-value-element (rest (trim rest-of-string)))]
-          (if (nil? parsed-json-value)
-            nil
-            (let [[string-after-removing-separator] (remove-separator (trim rest-of-string-after-json-value))]
-              (if (nil? string-after-removing-separator)
-                [[output-string ": " parsed-json-value] rest-of-string-after-json-value]
-                [[output-string ": " parsed-json-value] string-after-removing-separator]))))))))
 
 (defn separate-pair [string-val]
   (println "in separate-pair! " string-val)
@@ -95,7 +76,7 @@
           (println "Current string: " string-to-parse)
           (println "Parsed elements so far: " parsed-elements)
           (cond
-            ;; Valid JSON object end
+            ;; valid JSON object end
             (and (not (blank? string-to-parse)) (= (first string-to-parse) \}))
             [(create-json-object parsed-elements) (subs string-to-parse 1)]
 
@@ -105,7 +86,7 @@
               (println "Invalid or blank string.")
               nil)
 
-            ;; Parse key-value pairs
+            ;; parse key-value pairs
             :else
             (let [[key-value-output string-to-parse-after-pair]
                   (separate-pair string-to-parse)]
@@ -125,18 +106,18 @@
       (loop [string-to-parse (trim remaining-string)
              parsed-elements []]
         (cond
-          ;if valid
+          ; valid JSON array end
           (and (not (blank? string-to-parse)) (= (first string-to-parse) \]))
           [(create-json-array parsed-elements) (subs string-to-parse 1)]
 
-          ;if invalid
+          ;if string blank or false error
           (or (blank? string-to-parse) (nil? string-to-parse))
           nil
 
           :else
           (let [[parsed-value rest-of-string] (json-value string-to-parse)
                 remaining-string (remove-separator (or rest-of-string string-to-parse))]
-            ;if invalid
+            ;if parsing failed error
             (if (or (nil? parsed-value) (= string-to-parse remaining-string))
               nil
               (recur remaining-string (conj parsed-elements parsed-value)))))))))

@@ -5,8 +5,8 @@
   :dependencies [[org.clojure/clojure "1.11.1"]
                  [midje "1.10.9"]]
   :plugins [[lein-midje "3.2.1"]]
-  :repl-options {:init-ns json-parser.core}
-  :main json-parser.core)
+  :main json-parser.core
+  :repl-options {:init-ns json-parser.core})
 
 
 

@@ -1,0 +1,4 @@
+{"ab" : 34.4, "cd": "this is a string", "ef": true, "gh"  : false,
+"ij": null, "kl": [1,5,2,4,6,[true,false,false]],
+"mn": {"op": 63.4, "qr": "string once again", "st" :
+{"uv" : false, "wx" : true}}, "yz": 0.003}

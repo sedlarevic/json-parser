@@ -1,0 +1,57 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "Alice",
+      "isActive": true,
+      "scores": [85, 90, 88],
+      "preferences": {
+        "theme": "dark",
+        "language": "en",
+        "notifications": {
+          "email": true,
+          "sms": false
+        }
+      },
+      "friends": [
+        {"id": 2, "name": "Bob"},
+        {"id": 3, "name": "Charlie"}
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Bob",
+      "isActive": false,
+      "scores": [75, 80, 79],
+      "preferences": {
+        "theme": "light",
+        "language": "es",
+        "notifications": {
+          "email": false,
+          "sms": true
+        }
+      },
+      "friends": [
+        {"id": 1, "name": "Alice"}
+      ]
+    }
+  ],
+  "settings": {
+    "appVersion": "1.2.3",
+    "features": ["search", "filter", "export"],
+    "limits": {
+      "maxUsers": 1000,
+      "maxStorage": "10GB"
+    }
+  },
+  "logs": [
+    {"timestamp": "2024-12-29T10:00:00Z", "level": "info", "message": "User logged in."},
+    {"timestamp": "2024-12-29T10:05:00Z", "level": "error", "message": "Invalid password."},
+    {"timestamp": "2024-12-29T10:10:00Z", "level": "warning", "message": "Disk space low."}
+  ],
+  "statistics": {
+    "daily": [100, 120, 140],
+    "monthly": [3000, 3200, 3100],
+    "yearly": [36000, 40000, 38000]
+  }
+}

@@ -2,7 +2,8 @@
   (:require
    [json-parser.core :refer :all]
    [midje.sweet :refer :all]
-   [clojure.test :refer :all]))
+   [clojure.test :refer :all]
+   [json-parser.util :refer :all]))
 
 (facts "about parse-char"
   (fact "it correctly parses a matching char"
@@ -49,5 +50,4 @@
   (fact "it parses escaped quotes"
     (parse-jsonString "\"Speak \\\"friend\\\" and enter\"")
     => ["Speak \"friend\" and enter" ""]))
-
 

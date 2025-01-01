@@ -7,12 +7,15 @@
 ;NOTE/TODO: no string escaping support
 (declare json-value)
 (declare json-value-element)
+
 ;###
 (defn parse-jsonNull [string-val]
   (let [[output remaining-string] (parse-string string-val "null")]
     (if (nil? output)
       nil
-      [json-null remaining-string])))
+      (do
+        (println "it is a null!")
+        [json-null remaining-string]))))
 ;###
 (defn parse-jsonBool [string-val]
   (let [[output-for-true remaining-string-for-true] (parse-string string-val "true")]
@@ -20,14 +23,19 @@
       (do (let [[output-for-false remaining-string-for-false] (parse-string string-val "false")]
             (if (nil? output-for-false)
               nil
-              [json-bool-false remaining-string-for-false])))
-      [json-bool-true remaining-string-for-true])))
+              (do
+                (println "it is a boolean!")
+                [json-bool-false remaining-string-for-false]))))
+      (do
+        (println "it is a boolean!")
+        [json-bool-true remaining-string-for-true]))))
 ;###
 (defn parse-jsonString [string-val]
   (let [[_ remaining-string] (parse-char string-val "\"")]
     (if (nil? remaining-string)
       nil
       (do
+        (println "it is a string!")
         (let [[output-string remaining] (parse-string-until remaining-string "\"")]
           (if (nil? output-string)
             nil
@@ -35,22 +43,26 @@
 
 ;###
 (defn parse-jsonNumber [string-val]
+  (println string-val "...string input for jsonNumber...")
   (let [[output remaining-string] (span-string (trim string-val))]
-    (println output remaining-string)
+    (println "output in jsonNumber" output remaining-string)
     (if (nil? output)
       nil
-      [(create-json-number (read-string output)) remaining-string])))
+      (do
+        (println "it is a number!")
+        [(create-json-number (read-string output)) (trim remaining-string)]))))
 
 (defn separate-pair [string-val]
-  (println "in separate-pair! " string-val)
+  (println "in separate-pair! ")
+  (println string-val)
   (if (= (first (trim string-val)) \")
     (do
       (let [[_ string-without-first-quote] (parse-char (trim string-val) \")]
-        (println "After removing first quote: " string-without-first-quote)
         (let [[key rest-of-string] (parse-string-until string-without-first-quote \")]
           (println "Parsed key: " key " Remaining string: " rest-of-string)
           (if (and key (= (first (trim rest-of-string)) \:))
             (do
+              (println "this is first char of a trimmed string, it should be :..." (first (trim rest-of-string)))
               (let [[_ parsable-string] (parse-char (trim rest-of-string) \:)]
                 (let [[value rest-of-string-after-parsing] (json-value-element (trim parsable-string))]
                   (println "Parsed value: " value " Remaining string: " rest-of-string-after-parsing)
@@ -60,44 +72,46 @@
                             (remove-separator (trim rest-of-string-after-parsing))]
                         (println "After removing separator: " rest-of-string-after-removing-separator)
                         [[key value] rest-of-string-after-removing-separator])) nil))))
-                     (do
-                       (println "Key or ':' is missing.") nil))))) 
-                      (do (println "String does not start with a quote.") nil)))
+            (do
+              (println "Key or ':' is missing.") nil)))))
+    (do (println "String does not start with a quote.") nil)))
 
 ;###
 (defn parse-jsonObject [string-val]
   (when-not (nil? string-val)
     (let [[_ remaining-string] (parse-char string-val \{)]
-      (println "After removing opening brace: " remaining-string)
       (if (nil? remaining-string)
         nil
-        (loop [string-to-parse (trim remaining-string)
-               parsed-elements []]
-          (println "Current string: " string-to-parse)
-          (println "Parsed elements so far: " parsed-elements)
-          (cond
+        (do
+          (println "it is a json object!")
+          (loop [string-to-parse (trim remaining-string)
+                 parsed-elements []]
+            (println "In a loop of parse-jsonObject")
+            (println "Current string: " string-to-parse)
+            (println "Parsed elements so far: " parsed-elements)
+            (cond
             ;; valid JSON object end
-            (and (not (blank? string-to-parse)) (= (first string-to-parse) \}))
-            [(create-json-object parsed-elements) (subs string-to-parse 1)]
+              (and (not (blank? string-to-parse)) (= (first string-to-parse) \}))
+              [(create-json-object parsed-elements) (subs string-to-parse 1)]
 
             ;; Invalid or blank string
-            (or (blank? string-to-parse) (nil? string-to-parse))
-            (do
-              (println "Invalid or blank string.")
-              nil)
+              (or (blank? string-to-parse) (nil? string-to-parse))
+              (do
+                (println "Invalid or blank string.")
+                nil)
 
             ;; parse key-value pairs
-            :else
-            (let [[key-value-output string-to-parse-after-pair]
-                  (separate-pair string-to-parse)]
-              (println "Key-value pair output: " key-value-output)
-              (println "Remaining string after pair: " string-to-parse-after-pair)
-              (if (nil? key-value-output)
-                (do
-                  (println "Key-value pair parsing failed.")
-                  nil)
-                (recur string-to-parse-after-pair
-                       (conj parsed-elements key-value-output))))))))))
+              :else
+              (let [[key-value-output string-to-parse-after-pair]
+                    (separate-pair string-to-parse)]
+                (println "Key-value pair output: " key-value-output)
+                (println "Remaining string after pair: " string-to-parse-after-pair)
+                (if (nil? key-value-output)
+                  (do
+                    (println "Key-value pair parsing failed.")
+                    nil)
+                  (recur string-to-parse-after-pair
+                         (conj parsed-elements key-value-output)))))))))))
 ;###
 (defn parse-jsonArray [string-val]
   (let [[_ remaining-string] (parse-char string-val "[")]
@@ -137,8 +151,12 @@
       (let [parser (first parsers)
             [output,rest-of-string] (parser string-val)]
         (if (some? output)
-          [output rest-of-string]
-          (recur (rest parsers)))))))
+          (do
+            (println "the output from try-parser is: " output)
+            [output rest-of-string])
+          (do
+            (println "the parser is not: " parser)
+            (recur (rest parsers))))))))
 
 (defn json-value-element [string-val]
   (let [[parsed-value rest-of-string] (try-parser (trim string-val))]
@@ -160,5 +178,16 @@
           [parsed-output remaining-string])
         :else
         (recur (trim remaining-string) (conj parsed-output parsed-value))))))
-
-
+(defn clean-string [s]
+  (-> s
+      (clojure.string/replace #"\s+" " ") ;; Zamenjuje višestruke razmake jednim
+      (clojure.string/trim)))             ;; Uklanja vodeće i prateće razmake
+(defn read-json-from-file
+  [file]
+  (let [string-from-file (clean-string (slurp file))]
+    (println "content from file" string-from-file)
+    (if (nil? string-from-file)
+      nil
+      (do
+        (let [[output-json,_] (json-value (trim string-from-file))]
+          output-json)))))

@@ -38,7 +38,7 @@
 (defrecord JsonArray [value]
   Object
   (toString [this]
-    (str "JsonArray: "(clojure.string/join ", " value)"")))
+    (str "JsonArray: " (clojure.string/join ", " value) "")))
 
 (defmethod print-method JsonArray [v ^java.io.Writer w]
   (.write w (str v)))
@@ -46,7 +46,7 @@
 (defrecord JsonObject [value]
   Object
   (toString [this]
-    (str "JsonObject: "(clojure.string/join ", " value)""  )))
+    (str "JsonObject: " (clojure.string/join ", " value) "")))
 
 (defmethod print-method JsonObject [v ^java.io.Writer w]
   (.write w (str v)))
@@ -64,13 +64,15 @@
   (->JsonArray array))
 (defn create-json-object [object]
   (->JsonObject object))
+(def escape-sequences (hash-map
+                       :quote "\""
+                       :backslash "\\"))
 ;takes first letter of the string-value, and checks if the letter is the expected char
 ;if correct, returns the char and the rest of string, if not returns nil
 (defn parse-char [string-val expected-char]
   (if (blank? string-val)
     (do (println (blank? string-val) expected-char) nil)
     (do
-      (println "parsing char..." string-val expected-char)
       (let [first-char (first string-val)]
         (if (= (str expected-char) (str first-char))
           (do
@@ -94,20 +96,20 @@
 (defn parse-string-until [string-val until]
   (loop [remaining-string string-val
          output []]
-    (println "in parse-string-until value of remaining string" remaining-string)
     (if (or (nil? remaining-string) (blank? remaining-string))
       nil
       (let [[parsed-char rest-of-string] (parse-char remaining-string (first remaining-string))]
-        (if (= (str until) (str parsed-char))
+        ; if escape seq should be handled here, better to do with cond, 1. parsed-char = until 2. hit \ 3. :else
+               (if (= (str until) (str parsed-char))
           [(apply str output) rest-of-string]
           (recur rest-of-string (conj output parsed-char)))))))
 
 (defn span-string [string-val]
-  (let [[_ number rest-of-string] (re-matches #"^(-?(?:0|[1-9]\d*)(?:\.\d+)?)(.*)$" string-val)]
-    (println _ number rest-of-string string-val)
+  (let [[_ number rest-of-string] (re-matches #"^(-?(?:0|[1-9]\d*)(?:\.\d+)?)(.*)$" (trim string-val))]
+    (println "in span string, number..." number "rest of string" rest-of-string)
     (if (nil? number)
       nil
-      [number rest-of-string])))
+      [number (trim rest-of-string)])))
 
 (defn remove-separator [string-val]
   (let [[_,rest-of-string] (parse-char (trim string-val) ",")]

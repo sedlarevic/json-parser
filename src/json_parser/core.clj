@@ -75,7 +75,6 @@
             (do
               (println "Key or ':' is missing.") nil)))))
     (do (println "String does not start with a quote.") nil)))
-
 ;###
 (defn parse-jsonObject [string-val]
   (when-not (nil? string-val)
@@ -122,7 +121,7 @@
         (cond
           ; valid JSON array end
           (and (not (blank? string-to-parse)) (= (first string-to-parse) \]))
-          [(create-json-array parsed-elements) (subs string-to-parse 1)]
+          [(create-json-array (vec parsed-elements)) (subs string-to-parse 1)]
 
           ;if string blank or false error
           (or (blank? string-to-parse) (nil? string-to-parse))

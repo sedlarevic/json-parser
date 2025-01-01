@@ -11,7 +11,7 @@ After that, just clone the repo, the main functions to use are json-value and re
 
 ## Introduction
 
-Hello, so this will be a brief introduction to a project of mine. This is a json parser written completely in Clojure. 
+Hello, so this will be a brief introduction to a project of mine. This is a JSON parser written completely in Clojure. 
 
 ### So what do I mean when i say JSON parser?
 JSON parser, essentialy, takes a string,a text as an input and provides output, which are parsed JSON objects. 

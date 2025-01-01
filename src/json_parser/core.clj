@@ -43,9 +43,7 @@
 
 ;###
 (defn parse-jsonNumber [string-val]
-  (println string-val "...string input for jsonNumber...")
   (let [[output remaining-string] (span-string (trim string-val))]
-    (println "output in jsonNumber" output remaining-string)
     (if (nil? output)
       nil
       (do
@@ -62,7 +60,6 @@
           (println "Parsed key: " key " Remaining string: " rest-of-string)
           (if (and key (= (first (trim rest-of-string)) \:))
             (do
-              (println "this is first char of a trimmed string, it should be :..." (first (trim rest-of-string)))
               (let [[_ parsable-string] (parse-char (trim rest-of-string) \:)]
                 (let [[value rest-of-string-after-parsing] (json-value-element (trim parsable-string))]
                   (println "Parsed value: " value " Remaining string: " rest-of-string-after-parsing)
@@ -70,7 +67,6 @@
                     (do
                       (let [rest-of-string-after-removing-separator
                             (remove-separator (trim rest-of-string-after-parsing))]
-                        (println "After removing separator: " rest-of-string-after-removing-separator)
                         [[key value] rest-of-string-after-removing-separator])) nil))))
             (do
               (println "Key or ':' is missing.") nil)))))
@@ -85,9 +81,6 @@
           (println "it is a json object!")
           (loop [string-to-parse (trim remaining-string)
                  parsed-elements []]
-            (println "In a loop of parse-jsonObject")
-            (println "Current string: " string-to-parse)
-            (println "Parsed elements so far: " parsed-elements)
             (cond
             ;; valid JSON object end
               (and (not (blank? string-to-parse)) (= (first string-to-parse) \}))
@@ -184,7 +177,6 @@
 (defn read-json-from-file
   [file]
   (let [string-from-file (clean-string (slurp file))]
-    (println "content from file" string-from-file)
     (if (nil? string-from-file)
       nil
       (do

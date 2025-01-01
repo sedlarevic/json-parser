@@ -106,7 +106,6 @@
 
 (defn span-string [string-val]
   (let [[_ number rest-of-string] (re-matches #"^(-?(?:0|[1-9]\d*)(?:\.\d+)?)(.*)$" (trim string-val))]
-    (println "in span string, number..." number "rest of string" rest-of-string)
     (if (nil? number)
       nil
       [number (trim rest-of-string)])))

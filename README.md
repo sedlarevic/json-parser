@@ -1,5 +1,14 @@
 # json-parser
 
+## How to use
+
+First of all, download the dependencies, leiningen and midje.
+Here are the links that will surely help.
+https://leiningen.org/
+https://github.com/marick/Midje
+
+After that, just clone the repo, the main functions to use are json-value and read-json-from-file. 
+
 ## Introduction
 
 Hello, so this will be a brief introduction to a project of mine. This is a json parser written completely in Clojure. 
@@ -32,7 +41,7 @@ We will now move to the JSON parser and its' functions.
 
 ## JSON Parser
 
-Maybe the best explanation is to go from top to bottom, but first, pay a close attention to a picture shown below.
+I think the best approach to explaining this project is through one main picture. Please, pay attention to the picture below.
 
 ![json parser drawio](https://github.com/user-attachments/assets/e2565928-2059-4cdc-8f13-f184710dacca)
 
@@ -48,12 +57,31 @@ Input:
 "ij": null, "kl": [1,5,2,4,6,[true,false,false]],
 "mn": {"op": 63.4, "qr": "string once again", "st" :
 {"uv" : false, "wx" : true}}, "yz": 0.003}
+
 Output:
 [JsonObject: ["ab" JsonNumber: 34.4], ["cd" JsonString: "this is a string"], ["ef" JsonBool: true], ["gh" JsonBool: false], ["ij" JsonNull: nil], ["kl" JsonArray: [JsonNumber: 1 JsonNumber: 5 JsonNumber: 2 JsonNumber: 4 JsonNumber: 6 JsonArray: [JsonBool: true JsonBool: false JsonBool: false]]], ["mn" JsonObject: ["op" JsonNumber: 63.4], ["qr" JsonString: "string once again"], ["st" JsonObject: ["uv" JsonBool: false], ["wx" JsonBool: true]]], ["yz" JsonNumber: 0.003]]
 
-## Usage
+### Reading from file
 
-FIXME
+Reading JSON from file is also supported. The function that provides that is called read-json-from-file, and the only thing that should be provided to that function is file path.
+
+### Parse-char & Parse-string
+
+The backbones of this project are these two functions, and their role is really simple. Parse a character from a string, and parse a substring from a string, or return nil.
+Almost every "smaller" parser uses these two functions.
+
+Parse-char takes 2 inputs. First input is string that should be parsed. Second input is the character that should be the output of the parsing, the one that should be parsed from the string. So, the first character from a string.
+Parse-string also takes 2 inputs. The string that should be parsed, and the expected output from a string that is parsed.
+
+Here are the illustrations of the way they work:
+
+Parse-char:
+
+![parse-char drawio](https://github.com/user-attachments/assets/d395c436-afd3-48a3-bfed-b45beea3387b)
+
+Parse-string:
+
+![parse-string drawio](https://github.com/user-attachments/assets/f9aad61f-354d-4f6f-b4d7-555a4f396d79)
 
 ## License
 

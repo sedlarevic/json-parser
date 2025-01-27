@@ -83,6 +83,14 @@ Parse-string:
 
 ![parse-string drawio](https://github.com/user-attachments/assets/f9aad61f-354d-4f6f-b4d7-555a4f396d79)
 
+## Motivation
+
+This is a project for a class subject on my masters' studies called "Tools and methods of software engineering and artifical intelligence", where we are mainly supposed to use functional programming language, Clojure. As I was not used to writing code in functional languages, I wanted to make a project that will be challenging, but still fun, so I could experience the functional paradigm in its' full potential. I was looking for concepts, ideas, projects that I could induge in, and chose JSON parser at the end, mainly because it seemed fun, but saw an opportunity for myself to learn a lot.
+
+## Differing from other JSON parsers
+
+I would like to clarify that this json parser is not currently intended to be used for production purposes. The main goal was not optimization, it was to have a project finished, so the goal in the future will be to optimize it as much as it is possible, though it uses "recur" which has built-in optimizations in of itself. Also, the limitations of this parser is that there is no support for string escaping yet.
+
 ## License
 
 Copyright © 2024 FIXME

@@ -87,10 +87,29 @@ Parse-string:
 
 This is a project for a class subject on my masters' studies called "Tools and methods of software engineering and artifical intelligence", where we are mainly supposed to use functional programming language, Clojure. As I was not used to writing code in functional languages, I wanted to make a project that will be challenging, but still fun, so I could experience the functional paradigm in its' full potential. I was looking for concepts, ideas, projects that I could induge in, and chose JSON parser at the end, mainly because it seemed fun, but saw an opportunity for myself to learn a lot.
 
-## Differing from other JSON parsers
+## Benchmarking
 
 I would like to clarify that this json parser is not currently intended to be used for production purposes. The main goal was not optimization, it was to have a project finished, so the goal in the future will be to optimize it as much as it is possible, though it uses "recur" which has built-in optimizations in of itself. Also, the limitations of this parser is that there is no support for string escaping yet.
 
+For the sake of benchmarking, I've taken Cheshire to do my tests, as it is really performant. Here are the results:
+
+My JSON parser:
+Evaluation count : 324 in 6 samples of 54 calls.
+             Execution time mean : 1.930668 ms
+    Execution time std-deviation : 81.387318 µs
+   Execution time lower quantile : 1.861338 ms ( 2.5%)
+   Execution time upper quantile : 2.033050 ms (97.5%)
+                   Overhead used : 6.570793 ns
+                   
+Benchmarking Cheshire parser:
+Evaluation count : 15792 in 6 samples of 2632 calls.
+             Execution time mean : 38.205987 µs
+    Execution time std-deviation : 693.776528 ns
+   Execution time lower quantile : 37.662803 µs ( 2.5%)
+   Execution time upper quantile : 39.305634 µs (97.5%)
+                   Overhead used : 6.570793 ns
+                   
+As you can see, my parser is drastically slower than Cheshire. That means there is a lot of room for improvement!
 ## License
 
 Copyright © 2024 FIXME

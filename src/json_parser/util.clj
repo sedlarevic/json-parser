@@ -78,9 +78,7 @@
           (do
             (let [rest-of-string (subs (str string-val) 1)]
               [first-char rest-of-string]))
-          (do
-            (println "chars are not same" first-char expected-char)
-            nil))))))
+            nil)))))
 ;recursively goes through expected-string-value
 ;when expected-string-value is blank, we return expected value, and the rest of the string-val 
 (defn parse-string [string-val expected-string-val]

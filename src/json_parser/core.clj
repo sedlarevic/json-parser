@@ -3,19 +3,22 @@
    [clojure.string :refer [blank? trim]]
    [clojure.string :as string]
    [json-parser.util :refer :all]))
+   ;[cheshire.core :as json]
+   ;[criterium.core :as crit]
+
 ;NOTE: first rest solve a lot of problems, when project finished, try to implement them. Mostly in parse-char 
 ;NOTE/TODO: no string escaping support
 (declare json-value)
 (declare json-value-element)
 
+;(defn read-json-with-cheshire [file]
+;  (json/parse-string (slurp file) true))
 ;###
 (defn parse-jsonNull [string-val]
   (let [[output remaining-string] (parse-string string-val "null")]
     (if (nil? output)
       nil
-      (do
-        (println "it is a null!")
-        [json-null remaining-string]))))
+      [json-null remaining-string])))
 ;###
 (defn parse-jsonBool [string-val]
   (let [[output-for-true remaining-string-for-true] (parse-string string-val "true")]
@@ -23,19 +26,14 @@
       (do (let [[output-for-false remaining-string-for-false] (parse-string string-val "false")]
             (if (nil? output-for-false)
               nil
-              (do
-                (println "it is a boolean!")
-                [json-bool-false remaining-string-for-false]))))
-      (do
-        (println "it is a boolean!")
-        [json-bool-true remaining-string-for-true]))))
+              [json-bool-false remaining-string-for-false])))
+      [json-bool-true remaining-string-for-true])))
 ;###
 (defn parse-jsonString [string-val]
   (let [[_ remaining-string] (parse-char string-val "\"")]
     (if (nil? remaining-string)
       nil
       (do
-        (println "it is a string!")
         (let [[output-string remaining] (parse-string-until remaining-string "\"")]
           (if (nil? output-string)
             nil
@@ -47,30 +45,23 @@
     (if (nil? output)
       nil
       (do
-        (println "it is a number!")
         [(create-json-number (read-string output)) (trim remaining-string)]))))
 
 (defn separate-pair [string-val]
-  (println "in separate-pair! ")
   (println string-val)
   (if (= (first (trim string-val)) \")
     (do
       (let [[_ string-without-first-quote] (parse-char (trim string-val) \")]
         (let [[key rest-of-string] (parse-string-until string-without-first-quote \")]
-          (println "Parsed key: " key " Remaining string: " rest-of-string)
           (if (and key (= (first (trim rest-of-string)) \:))
             (do
               (let [[_ parsable-string] (parse-char (trim rest-of-string) \:)]
                 (let [[value rest-of-string-after-parsing] (json-value-element (trim parsable-string))]
-                  (println "Parsed value: " value " Remaining string: " rest-of-string-after-parsing)
                   (if value
                     (do
                       (let [rest-of-string-after-removing-separator
                             (remove-separator (trim rest-of-string-after-parsing))]
-                        [[key value] rest-of-string-after-removing-separator])) nil))))
-            (do
-              (println "Key or ':' is missing.") nil)))))
-    (do (println "String does not start with a quote.") nil)))
+                        [[key value] rest-of-string-after-removing-separator])) nil)))) nil)))) nil))
 ;###
 (defn parse-jsonObject [string-val]
   (when-not (nil? string-val)
@@ -78,7 +69,6 @@
       (if (nil? remaining-string)
         nil
         (do
-          (println "it is a json object!")
           (loop [string-to-parse (trim remaining-string)
                  parsed-elements []]
             (cond
@@ -89,18 +79,14 @@
             ;; Invalid or blank string
               (or (blank? string-to-parse) (nil? string-to-parse))
               (do
-                (println "Invalid or blank string.")
                 nil)
 
             ;; parse key-value pairs
               :else
               (let [[key-value-output string-to-parse-after-pair]
                     (separate-pair string-to-parse)]
-                (println "Key-value pair output: " key-value-output)
-                (println "Remaining string after pair: " string-to-parse-after-pair)
                 (if (nil? key-value-output)
                   (do
-                    (println "Key-value pair parsing failed.")
                     nil)
                   (recur string-to-parse-after-pair
                          (conj parsed-elements key-value-output)))))))))))
@@ -144,10 +130,8 @@
             [output,rest-of-string] (parser string-val)]
         (if (some? output)
           (do
-            (println "the output from try-parser is: " output)
             [output rest-of-string])
           (do
-            (println "the parser is not: " parser)
             (recur (rest parsers))))))))
 
 (defn json-value-element [string-val]
@@ -182,3 +166,10 @@
       (do
         (let [[output-json,_] (json-value (trim string-from-file))]
           output-json)))))
+
+;(defn benchmark []
+;  (let [file "largejsontext.txt"]
+;    (println "Benchmarking custom parser:")
+;    (crit/quick-bench (read-json-from-file file))
+;    (println "Benchmarking Cheshire parser:")
+;    (crit/quick-bench (read-json-with-cheshire file))))

@@ -48,7 +48,6 @@
         [(create-json-number (read-string output)) (trim remaining-string)]))))
 
 (defn separate-pair [string-val]
-  (println string-val)
   (if (= (first (trim string-val)) \")
     (do
       (let [[_ string-without-first-quote] (parse-char (trim string-val) \")]

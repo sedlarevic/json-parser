@@ -72,4 +72,11 @@
   (fact "it returns nil for invalid JSON objects"
     (parse-jsonObject "{\"key\":}") => nil))
 
+(facts "about JSON parsing"
+  (fact "Custom parser should correctly parse small JSON"
+    (let [json-string (slurp "jsontext.txt")]
+      (my-parser/parse-json json-string) => (cheshire/parse-string json-string true)))
+  (fact "Custom parser should correctly parse large JSON"
+    (let [json-string (slurp "largejsontext.txt")]
+      (my-parser/parse-json json-string) => (cheshire/parse-string json-string true))))
 

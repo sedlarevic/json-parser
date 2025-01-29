@@ -70,15 +70,13 @@
 ;takes first letter of the string-value, and checks if the letter is the expected char
 ;if correct, returns the char and the rest of string, if not returns nil
 (defn parse-char [string-val expected-char]
-  (if (blank? string-val)
-    (do (println (blank? string-val) expected-char) nil)
     (do
       (let [first-char (first string-val)]
         (if (= (str expected-char) (str first-char))
           (do
             (let [rest-of-string (subs (str string-val) 1)]
               [first-char rest-of-string]))
-            nil)))))
+            nil))))
 ;recursively goes through expected-string-value
 ;when expected-string-value is blank, we return expected value, and the rest of the string-val 
 (defn parse-string [string-val expected-string-val]

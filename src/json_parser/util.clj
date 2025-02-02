@@ -3,7 +3,7 @@
    [clojure.string :refer [blank? join trim]]))
 
 ;records
-(defrecord JsonString [value]
+(defrecord JsonString [value type]
   Object
   (toString [this]
     (str "JsonString: \"" value "\"")))
@@ -11,7 +11,7 @@
 (defmethod print-method JsonString [v ^java.io.Writer w]
   (.write w (str v)))
 
-(defrecord JsonNumber [value]
+(defrecord JsonNumber [value type]
   Object
   (toString [this]
     (str "JsonNumber: " value)))
@@ -19,7 +19,7 @@
 (defmethod print-method JsonNumber [v ^java.io.Writer w]
   (.write w (str v)))
 
-(defrecord JsonBool [value]
+(defrecord JsonBool [value type]
   Object
   (toString [this]
     (str "JsonBool: " value)))
@@ -27,7 +27,7 @@
 (defmethod print-method JsonBool [v ^java.io.Writer w]
   (.write w (str v)))
 
-(defrecord JsonNull [value]
+(defrecord JsonNull [value type]
   Object
   (toString [this]
     (str "JsonNull: nil")))
@@ -35,7 +35,7 @@
 (defmethod print-method JsonNull [v ^java.io.Writer w]
   (.write w (str v)))
 
-(defrecord JsonArray [value]
+(defrecord JsonArray [value type]
   Object
   (toString [this]
     (str "JsonArray: " (clojure.string/join ", " value) "")))
@@ -43,7 +43,7 @@
 (defmethod print-method JsonArray [v ^java.io.Writer w]
   (.write w (str v)))
 
-(defrecord JsonObject [value]
+(defrecord JsonObject [value type]
   Object
   (toString [this]
     (str "JsonObject: " (clojure.string/join ", " value) "")))
@@ -53,30 +53,30 @@
 ; should be a map
 
 ;instances
-(def json-bool-true (->JsonBool true))
-(def json-bool-false (->JsonBool false))
-(def json-null (->JsonNull nil))
+(def json-bool-true (->JsonBool true :json-bool))
+(def json-bool-false (->JsonBool false :json-bool))
+(def json-null (->JsonNull nil :json-null))
 (defn create-json-number [num]
-  (->JsonNumber num))
+  (->JsonNumber num :json-number))
 (defn create-json-string [str]
-  (->JsonString str))
+  (->JsonString str :json-string))
 (defn create-json-array [array]
-  (->JsonArray array))
+  (->JsonArray (vec array) :json-array))
 (defn create-json-object [object]
-  (->JsonObject object))
+  (->JsonObject object :json-object))
 (def escape-sequences (hash-map
                        :quote "\""
                        :backslash "\\"))
 ;takes first letter of the string-value, and checks if the letter is the expected char
 ;if correct, returns the char and the rest of string, if not returns nil
 (defn parse-char [string-val expected-char]
-    (do
-      (let [first-char (first string-val)]
-        (if (= (str expected-char) (str first-char))
-          (do
-            (let [rest-of-string (subs (str string-val) 1)]
-              [first-char rest-of-string]))
-            nil))))
+  (do
+    (let [first-char (first string-val)]
+      (if (= (str expected-char) (str first-char))
+        (do
+          (let [rest-of-string (subs (str string-val) 1)]
+            [first-char rest-of-string]))
+        nil))))
 ;recursively goes through expected-string-value
 ;when expected-string-value is blank, we return expected value, and the rest of the string-val 
 (defn parse-string [string-val expected-string-val]
@@ -96,7 +96,7 @@
       nil
       (let [[parsed-char rest-of-string] (parse-char remaining-string (first remaining-string))]
         ; if escape seq should be handled here, better to do with cond, 1. parsed-char = until 2. hit \ 3. :else
-               (if (= (str until) (str parsed-char))
+        (if (= (str until) (str parsed-char))
           [(apply str output) rest-of-string]
           (recur rest-of-string (conj output parsed-char)))))))
 

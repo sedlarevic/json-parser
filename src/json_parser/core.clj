@@ -1,70 +1,69 @@
 (ns json-parser.core
   (:require
+   [cheshire.core :as json]
    [clojure.string :refer [blank? trim]]
-   [clojure.string :as string]
-   [json-parser.util :refer :all]))
-   ;[cheshire.core :as json]
-   ;[criterium.core :as crit]
+   [criterium.core :as crit]
+   [json-parser.util :as util]))
 
-;NOTE: first rest solve a lot of problems, when project finished, try to implement them. Mostly in parse-char 
 ;NOTE/TODO: no string escaping support
 (declare json-value)
 (declare json-value-element)
+(declare convert-to-correct-format)
 
-;(defn read-json-with-cheshire [file]
-;  (json/parse-string (slurp file) true))
+(defn read-json-with-cheshire [file]
+  (json/parse-string (slurp file) true))
 ;###
 (defn parse-jsonNull [string-val]
-  (let [[output remaining-string] (parse-string string-val "null")]
+  (let [[output remaining-string] (util/parse-string string-val "null")]
     (if (nil? output)
       nil
-      [json-null remaining-string])))
+      [util/json-null remaining-string])))
 ;###
 (defn parse-jsonBool [string-val]
-  (let [[output-for-true remaining-string-for-true] (parse-string string-val "true")]
+  (let [[output-for-true remaining-string-for-true] (util/parse-string string-val "true")]
     (if (nil? output-for-true)
-      (do (let [[output-for-false remaining-string-for-false] (parse-string string-val "false")]
+      (do (let [[output-for-false remaining-string-for-false] (util/parse-string string-val "false")]
             (if (nil? output-for-false)
               nil
-              [json-bool-false remaining-string-for-false])))
-      [json-bool-true remaining-string-for-true])))
+              [util/json-bool-false remaining-string-for-false])))
+      [util/json-bool-true remaining-string-for-true])))
 ;###
 (defn parse-jsonString [string-val]
-  (let [[_ remaining-string] (parse-char string-val "\"")]
+  (let [[_ remaining-string] (util/parse-char string-val "\"")]
     (if (nil? remaining-string)
       nil
       (do
-        (let [[output-string remaining] (parse-string-until remaining-string "\"")]
+        (let [[output-string remaining] (util/parse-string-until remaining-string "\"")]
           (if (nil? output-string)
             nil
-            [(create-json-string output-string) remaining]))))))
+            [(util/create-json-string output-string) remaining]))))))
 
 ;###
 (defn parse-jsonNumber [string-val]
-  (let [[output remaining-string] (span-string (trim string-val))]
+  (let [[output remaining-string] (util/span-string (trim string-val))]
     (if (nil? output)
       nil
       (do
-        [(create-json-number (read-string output)) (trim remaining-string)]))))
+        [(util/create-json-number (read-string output)) (trim remaining-string)]))))
 
 (defn separate-pair [string-val]
   (if (= (first (trim string-val)) \")
     (do
-      (let [[_ string-without-first-quote] (parse-char (trim string-val) \")]
-        (let [[key rest-of-string] (parse-string-until string-without-first-quote \")]
+      (let [[_ string-without-first-quote] (util/parse-char (trim string-val) \")]
+        (let [[key rest-of-string] (util/parse-string-until string-without-first-quote \")]
           (if (and key (= (first (trim rest-of-string)) \:))
             (do
-              (let [[_ parsable-string] (parse-char (trim rest-of-string) \:)]
+              (let [[_ parsable-string] (util/parse-char (trim rest-of-string) \:)]
                 (let [[value rest-of-string-after-parsing] (json-value-element (trim parsable-string))]
                   (if value
                     (do
                       (let [rest-of-string-after-removing-separator
-                            (remove-separator (trim rest-of-string-after-parsing))]
+                            (util/remove-separator (trim rest-of-string-after-parsing))]
                         [[key value] rest-of-string-after-removing-separator])) nil)))) nil)))) nil))
 ;###
 (defn parse-jsonObject [string-val]
   (when-not (nil? string-val)
-    (let [[_ remaining-string] (parse-char string-val \{)]
+    (let [[_ remaining-string] (util/parse-char string-val \{)]
       (if (nil? remaining-string)
         nil
         (do
@@ -73,7 +72,7 @@
             (cond
             ;; valid JSON object end
               (and (not (blank? string-to-parse)) (= (first string-to-parse) \}))
-              [(create-json-object parsed-elements) (subs string-to-parse 1)]
+              [(util/create-json-object parsed-elements) (subs string-to-parse 1)]
 
             ;; Invalid or blank string
               (or (blank? string-to-parse) (nil? string-to-parse))
@@ -91,15 +90,15 @@
                          (conj parsed-elements key-value-output)))))))))))
 ;###
 (defn parse-jsonArray [string-val]
-  (let [[_ remaining-string] (parse-char string-val "[")]
+  (let [[_ remaining-string] (util/parse-char string-val "[")]
     (if (nil? remaining-string)
       nil
       (loop [string-to-parse (trim remaining-string)
-             parsed-elements []]
+             parsed-elements nil]
         (cond
           ; valid JSON array end
           (and (not (blank? string-to-parse)) (= (first string-to-parse) \]))
-          [(create-json-array (vec parsed-elements)) (subs string-to-parse 1)]
+          [(util/create-json-array parsed-elements) (subs string-to-parse 1)]
 
           ;if string blank or false error
           (or (blank? string-to-parse) (nil? string-to-parse))
@@ -107,7 +106,7 @@
 
           :else
           (let [[parsed-value rest-of-string] (json-value string-to-parse)
-                remaining-string (remove-separator (or rest-of-string string-to-parse))]
+                remaining-string (util/remove-separator (or rest-of-string string-to-parse))]
             ;if parsing failed error
             (if (or (nil? parsed-value) (= string-to-parse remaining-string))
               nil
@@ -145,7 +144,7 @@
     (if (or (nil? string-to-parse) (blank? string-to-parse))
       parsed-output)
     (let [[parsed-value rest-of-string] (try-parser string-to-parse)
-          remaining-string (remove-separator (or rest-of-string string-to-parse))]
+          remaining-string (util/remove-separator (or rest-of-string string-to-parse))]
       (cond
         (or (nil? parsed-value) (= (trim string-to-parse) (trim remaining-string)) (= (first remaining-string) "]"))
         (if (= (first remaining-string) "]")
@@ -164,11 +163,36 @@
       nil
       (do
         (let [[output-json,_] (json-value (trim string-from-file))]
-          output-json)))))
+          (let [final (convert-to-correct-format output-json)]
+            final))))))
+(defn convert-to-correct-format [json-ast]
+  (cond
 
-;(defn benchmark []
-;  (let [file "largejsontext.txt"]
-;    (println "Benchmarking custom parser:")
-;    (crit/quick-bench (read-json-from-file file))
-;    (println "Benchmarking Cheshire parser:")
-;    (crit/quick-bench (read-json-with-cheshire file))))
+    (and (vector? json-ast) (= 1 (count json-ast)))
+    (convert-to-correct-format (first json-ast))
+
+    (vector? json-ast)
+    (mapv convert-to-correct-format json-ast)
+
+    (= :json-object (:type json-ast))
+    (into {} (map (fn [[k v]] [(keyword k) (convert-to-correct-format v)]) (:value json-ast)))
+
+    (= :json-array (:type json-ast))
+    (mapv convert-to-correct-format (first (:value json-ast)))
+
+    (= :json-string (:type json-ast))
+    (:value json-ast)
+
+    (= :json-number (:type json-ast))
+    (:value json-ast)
+
+    (= :json-bool (:type json-ast))
+    (if (= (:value json-ast) true) true false)
+
+    (= :json-null (:type json-ast))
+    nil
+
+    :else
+     nil)) 
+
+

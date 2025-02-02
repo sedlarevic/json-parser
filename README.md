@@ -59,7 +59,7 @@ Input:
 {"uv" : false, "wx" : true}}, "yz": 0.003}
 
 Output:
-[JsonObject: ["ab" JsonNumber: 34.4], ["cd" JsonString: "this is a string"], ["ef" JsonBool: true], ["gh" JsonBool: false], ["ij" JsonNull: nil], ["kl" JsonArray: [JsonNumber: 1 JsonNumber: 5 JsonNumber: 2 JsonNumber: 4 JsonNumber: 6 JsonArray: [JsonBool: true JsonBool: false JsonBool: false]]], ["mn" JsonObject: ["op" JsonNumber: 63.4], ["qr" JsonString: "string once again"], ["st" JsonObject: ["uv" JsonBool: false], ["wx" JsonBool: true]]], ["yz" JsonNumber: 0.003]]
+{:ab 34.4, :cd "this is a string", :ef true, :gh false, :ij nil, :kl [1 5 2 4 6 [true false false]], :mn {:op 63.4, :qr "string once again", :st {:uv false, :wx true}}, :yz 0.003}
 
 ### Reading from file
 
@@ -94,20 +94,19 @@ I would like to clarify that this json parser is not currently intended to be us
 For the sake of benchmarking, I've taken Cheshire to do my tests, as it is really performant. Here are the results:
 
 My JSON parser:
-Evaluation count : 324 in 6 samples of 54 calls.
-             Execution time mean : 1.930668 ms
-    Execution time std-deviation : 81.387318 µs
-   Execution time lower quantile : 1.861338 ms ( 2.5%)
-   Execution time upper quantile : 2.033050 ms (97.5%)
-                   Overhead used : 6.570793 ns
-                   
+Evaluation count : 1062 in 6 samples of 177 calls.
+             Execution time mean : 575.349882 µs
+    Execution time std-deviation : 9.058773 µs
+   Execution time lower quantile : 567.193299 µs ( 2.5%)
+   Execution time upper quantile : 588.552965 µs (97.5%)
+                   Overhead used : 6.564701 ns
 Benchmarking Cheshire parser:
-Evaluation count : 15792 in 6 samples of 2632 calls.
-             Execution time mean : 38.205987 µs
-    Execution time std-deviation : 693.776528 ns
-   Execution time lower quantile : 37.662803 µs ( 2.5%)
-   Execution time upper quantile : 39.305634 µs (97.5%)
-                   Overhead used : 6.570793 ns
+Evaluation count : 16026 in 6 samples of 2671 calls.
+             Execution time mean : 37.746428 µs
+    Execution time std-deviation : 264.711451 ns
+   Execution time lower quantile : 37.461144 µs ( 2.5%)
+   Execution time upper quantile : 37.999831 µs (97.5%)
+                   Overhead used : 6.564701 ns
                    
 As you can see, my parser is drastically slower than Cheshire. That means there is a lot of room for improvement!
 ## License

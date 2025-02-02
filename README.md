@@ -43,7 +43,7 @@ We will now move to the JSON parser and its' functions.
 
 I think the best approach to explaining this project is through one main picture. Please, pay attention to the picture below.
 
-![json parser drawio](https://github.com/user-attachments/assets/e2565928-2059-4cdc-8f13-f184710dacca)
+![json parser drawio](https://github.com/user-attachments/assets/b0faace9-cce8-4e0f-8d35-539bf6fe836d)
 
 As you can see from the picture, the main parser consists of multiple smaller parsers, which parse some JSON object.
 When input is sent to the main parser, the parser pushes the whole input string to smaller parsers, to check if there is some JSON object to be parsed from the stringv (1.). If there is, the smaller parser sends that value to the main parser (json-value), and the main parser stores that value (3.). If there is no JSON object to be parsed, the main parser tries the remove the separator, which separates JSON objects (,). If the separator can be removed, main parser sends back string to be further parsed (3.). If, albeit, the remove-separator function returns nil, and the main function already received nil from all the smaller parsers, that means that there is no more string to be parsed, and returns the stored output value (4.).
@@ -94,13 +94,16 @@ I would like to clarify that this json parser is not currently intended to be us
 For the sake of benchmarking, I've taken Cheshire to do my tests, as it is really performant. Here are the results:
 
 My JSON parser:
+
 Evaluation count : 1062 in 6 samples of 177 calls.
              Execution time mean : 575.349882 µs
     Execution time std-deviation : 9.058773 µs
    Execution time lower quantile : 567.193299 µs ( 2.5%)
    Execution time upper quantile : 588.552965 µs (97.5%)
                    Overhead used : 6.564701 ns
+                   
 Benchmarking Cheshire parser:
+
 Evaluation count : 16026 in 6 samples of 2671 calls.
              Execution time mean : 37.746428 µs
     Execution time std-deviation : 264.711451 ns

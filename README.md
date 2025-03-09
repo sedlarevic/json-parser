@@ -111,8 +111,10 @@ Evaluation count : 16026 in 6 samples of 2671 calls.
    Execution time upper quantile : 37.999831 µs (97.5%)
                    Overhead used : 6.564701 ns
                    
-As you can see, my parser is drastically slower than Cheshire. Mostly because I've made my own custom records, which add a layer of abstraction. Also, I've made my own parsers, which parse text letter-by-letter, which makes the solution slower. That means there is a lot of room for improvement!
-Also, a lot of recursive calls, coming from function mapv, can cause a big bottleneck, if the json file is large.
+As you can see, my parser is drastically slower than Cheshire. Mostly because I've made my own custom records, which add a layer of abstraction. Also, I've made my own parsers, that parse text letter-by-letter, which makes the solution slower.
+Also, a lot of recursive calls, coming from function mapv, can cause a big bottleneck, if the JSON file is large.
+
+That means there is a lot of room for improvement!
 
 ## License
 
